@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Serve static files from the current directory
 app.use(express.static('./'));
@@ -14,6 +14,9 @@ const photosDir = path.join(__dirname, 'photos');
 if (!fs.existsSync(photosDir)) {
   fs.mkdirSync(photosDir, { recursive: true });
 }
+
+// Serve photos directory
+app.use('/photos', express.static(path.join(__dirname, 'photos')));
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -33,7 +36,6 @@ app.post('/upload-photo', upload.single('photo'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Return the path to the saved file
   return res.json({
     success: true,
     photoUrl: `/photos/${req.file.filename}`,
@@ -43,5 +45,5 @@ app.post('/upload-photo', upload.single('photo'), (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
